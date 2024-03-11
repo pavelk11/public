@@ -3,28 +3,134 @@
 <!DOCTYPE html>
 
 <html>
-   <body>
+   <head>
       <form method="post">
-        <header><h1 style="color:black" >Геокодер Яндекс </h1></header>
-        <label for="title">Поиск по координатам:</label><br>
-        <p></p>
-        <table>
-              <td>{{form.Coordx.label}}<td>{{ form.Coordx }}</td> </tr>
-              <td>{{form.Coordy.label}}<td>{{ form.Coordy }}</td> </tr>
-          </table>
-        <input type="submit" value="Показать"><br>
-        <p>Адрес:{{result[0]}}</p>
-        <br>
-        <label for="title"></label><br>
-        <label for="title">Поиск по адресу:</label><br>
-        <table>
-            <td>{{form.Address.label}}<td>{{ form.Address }}</td> </tr>
-        </table>    
-        <input type="submit" value="Показать">
-        <br>
-        <p>Координаты: {{result[1][0]}}:{{result[1][1]}} </p>
-      </form>
+      <title>Яндекс Геокодер СИА</title>
+      <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+  <meta name="description" content="Яндес карта API 3 c добавлением собствнного маркера и заголовка к нему">
+  <!-- Подключаем API 3.0. https://developer.tech.yandex.ru - получем и устанавливаем "JavaScript API и HTTP Геокодер" персональный api ключ, 
+    обязательно в настройках ключа прописываем разрешенные домены в разделе "Ограничение по HTTP Referer" -->
+  <script src="https://api-maps.yandex.ru/3.0/?apikey=d6d016ae-e51b-43a9-9aae-72217d6d1c0c&lang=ru_RU" type="text/javascript"></script>
 
+  <script>
+    var latt = '{{result[1][0]}}'
+    var longt = '{{result[1][1]}}'
+    // Главная функция, вызывается при запуске скрипта
+    main();
+    async function main() {
+      // ожидание загрузки модулей
+      await ymaps3.ready;
+      const {
+        YMap,
+        YMapDefaultSchemeLayer,
+        YMapControls,
+        YMapDefaultFeaturesLayer,
+        YMapMarker
+      } = ymaps3;
+
+      // Импорт модулей для элементов управления на карте
+      const {YMapZoomControl, YMapGeolocationControl} = await ymaps3.import('@yandex/ymaps3-controls@0.0.1');
+
+      // Координаты центра карты
+      const CENTER_COORDINATES = [latt, longt] ;
+      // координаты метки на карте
+      const MARKER_COORDINATES = [latt, longt] ;
+
+      // Объект с параметрами центра и зумом карты
+      const LOCATION = {center: CENTER_COORDINATES, zoom: 15};
+
+      // Создание объекта карты
+      map = new YMap(document.getElementById('map'), {location: LOCATION});
+
+      // Добавление слоев на карту
+      map.addChild(scheme = new YMapDefaultSchemeLayer());
+      map.addChild(new YMapDefaultFeaturesLayer());
+
+      // Добавление элементов управления на карту
+      map.addChild(new YMapControls({position: 'right'})
+        .addChild(new YMapZoomControl({}))
+      );
+      map.addChild(new YMapControls({position: 'top right'})
+        .addChild(new YMapGeolocationControl({}))
+      );
+
+      // Создание маркера
+      const el = document.createElement('img');
+      el.className = 'my-marker';
+      el.src = 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi.png';
+      ///el.title = 'Маркер';
+      el.onclick = () => map.update({location: {...LOCATION, duration: 400}});
+
+      // Создание заголовка маркера
+      const markerTitle = document.createElement('div');
+      //markerTitle.className = 'marker-title';
+      //markerTitle.innerHTML = 'Заголовок маркера';
+
+      // Контейнер для элементов маркера
+      const imgContainer = document.createElement('div');
+      imgContainer.appendChild(el);
+      imgContainer.appendChild(markerTitle);
+
+      // Добавление центра карты
+      map.addChild(new YMapMarker({coordinates: CENTER_COORDINATES}));
+
+      // Добавление маркера на карту
+      map.addChild(new YMapMarker({coordinates: MARKER_COORDINATES}, imgContainer));
+    }
+  </script>
+
+  <style>
+  html,
+  body,
+  #map {
+    width: 600px;
+    height: 400px;
+    margin: 0;
+    padding: 0;
+    font-family: 'Yandex Sans Text', Arial, Helvetica, sans-serif;
+  }
+
+  .my-marker {
+    position: relative;
+    box-sizing: border-box;
+    transform: translate(-50%,calc(-50% - 24px));
+    cursor: pointer;
+  }
+
+  </style>
+    </head>
+   <body>
+      <div class="row" style="width: 100%; position: absolute;">
+         <div class="column" style="width: 30%; float: left; margin-left:20px;">
+                  <form method="post">
+                     <header><h1 style="color:black" >Геокодер Яндекс </h1></header>
+                     <b><label for="title">Поиск по координатам:</label></b>
+                     <p></p>
+                     <table>
+                           <td>{{form.Coordx.label}}<td>{{ form.Coordx }}</td> </tr>
+                           <td>{{form.Coordy.label}}<td>{{ form.Coordy }}</td> </tr>
+                     </table>
+                     <input type="submit" value="Показать"><br>
+                     <p>Адрес:{{result[0]}}</p>
+                     <br>
+                     <label for="title"></label><br>
+                     <b><label for="title">Поиск по адресу:</label></b><br>
+                     <table>
+                        <td>{{form.Address.label}}<td>{{ form.Address }}</td> </tr>
+                     </table>    
+                     <input type="submit" value="Показать">
+                     <br>
+                     <p>Координаты: {{result[1][0]}}:{{result[1][1]}} </p>
+                     <br>
+            </div>
+            <div class="column" style="width: 40%; float: left;">
+               <br>
+                      <div id="map"></div>
+            </div>
+    </div>
+   
+ 
    </body>
 </html>
 

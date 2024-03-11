@@ -6,11 +6,11 @@ from wtforms import Form, FloatField, StringField
 
 class InputForm(Form):
     Coordx = FloatField(
-        label='Широта', default = None)
+        label='Широта', default = 57.991387)
     Coordy = FloatField(
-        label='Долгота', default = None)
+        label='Долгота', default = 56.203444)
     Address = StringField(
-        label='Адрес', default = None)
+        label='Адрес', default = 'Россия, Пермь, шоссе Космонавтов, 111Ик2')
  
 class Geo():
     client = Client(cfg.yapi)   
@@ -25,19 +25,25 @@ app = Flask(__name__)
 
 @app.route('/geo', methods=['GET', 'POST'])
 def geo():
-    form = InputForm(request.form)
-    rs1  = None
+    rs1 = None
     rs2 = None
+    form = InputForm(request.form)
     if request.method == 'POST':
         try:
             if form.Address.data is not None:
                 rs1 = Geo().get_coord(addr=form.Address.data)
             if form.Coordx.data is not None and form.Coordy.data is not None:
-                rs2 = Geo().get_address(form.Coordx.data, form.Coordy.data)               
+                rs2 = Geo().get_address(form.Coordx.data, form.Coordy.data)
+                print(form.Coordx.data, form.Coordy.data)             
         except:
-            rs = ['None','None']          
+            rs = "Ошибка"       
     rs = [rs2, rs1]
+    print(rs)
     return render_template('geo.html', form=form, result=rs)
+
+@app.route('/map')
+def about():
+    return render_template('map.html')
 
 if __name__ == "__main__":
     app.run(
