@@ -1,0 +1,31 @@
+{% block content %}
+ 
+<!DOCTYPE html>
+
+<html>
+   <body>
+      <form method="post">
+        <header><h1 style="color:black" >Геокодер Яндекс </h1></header>
+        <label for="title">Поиск по координатам:</label><br>
+        <p></p>
+        <table>
+              <td>{{form.Coordx.label}}<td>{{ form.Coordx }}</td> </tr>
+              <td>{{form.Coordy.label}}<td>{{ form.Coordy }}</td> </tr>
+          </table>
+        <input type="submit" value="Показать"><br>
+        <p>Адрес:{{result[0]}}</p>
+        <br>
+        <label for="title"></label><br>
+        <label for="title">Поиск по адресу:</label><br>
+        <table>
+            <td>{{form.Address.label}}<td>{{ form.Address }}</td> </tr>
+        </table>    
+        <input type="submit" value="Показать">
+        <br>
+        <p>Координаты: {{result[1][0]}}:{{result[1][1]}} </p>
+      </form>
+
+   </body>
+</html>
+
+{% endblock %}
