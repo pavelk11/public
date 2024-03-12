@@ -25,25 +25,23 @@ app = Flask(__name__)
 
 @app.route('/geo', methods=['GET', 'POST'])
 def geo():
-    rs1 = None
-    rs2 = None
-    form = InputForm(request.form)
+    form = InputForm(request.form) 
     if request.method == 'POST':
-        try:
+        if request.form["action"] == "Получить координаты":
             if form.Address.data is not None:
                 rs1 = Geo().get_coord(addr=form.Address.data)
-            if form.Coordx.data is not None and form.Coordy.data is not None:
-                rs2 = Geo().get_address(form.Coordx.data, form.Coordy.data)
-                print(form.Coordx.data, form.Coordy.data)             
-        except:
-            rs = "Ошибка"       
-    rs = [rs2, rs1]
-    print(rs)
-    return render_template('geo.html', form=form, result=rs)
-
-@app.route('/map')
-def about():
-    return render_template('map.html')
+                rs2 = None
+        if request.form["action"] == "Получить адрес":
+            if form.Coordx.data is not None and form.Coordy.data:         
+                rs2 = Geo().get_address(form.Coordx.data, form.Coordy.data)   
+                rs1 = None     
+    elif request.method == 'GET':
+        rs1 = [form.Coordy.data, form.Coordx.data]
+        rs2 = form.Address.data
+    rs = [rs2, rs1]  
+    return render_template('geo.html', form=form, result = rs)
+        
+        
 
 if __name__ == "__main__":
     app.run(
